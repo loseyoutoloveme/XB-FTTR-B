@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新华三小全光光功率计算器 V2.0</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Microsoft YaHei', 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* Header */
+    .header {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+    
+    .header h1 {
+      font-size: 28px;
+      color: #2c5aa0;
+      margin-bottom: 5px;
+    }
+    
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    /* Card */
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+    
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .card-title::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(180deg, #667eea, #764ba2);
+      border-radius: 2px;
+    }
+    
+    /* Device Selection */
+    .device-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    @media (max-width: 768px) {
+      .device-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .device-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid #e2e8f0;
+    }
+    
+    .device-card h3 {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .device-card select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .device-card select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .device-info {
+      margin-top: 15px;
+      padding: 12px;
+      background: #fff;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.6;
+    }
+    
+    .device-info strong {
+      color: #667eea;
+    }
+    
+    /* Splitter Table */
+    .splitter-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    
+    .splitter-table th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 14px 10px;
+      font-size: 13px;
+      font-weight: 500;
+      text-align: center;
+    }
+    
+    .splitter-table th:first-child {
+      border-radius: 8px 0 0 0;
+    }
+    
+    .splitter-table th:last-child {
+      border-radius: 0 8px 0 0;
+    }
+    
+    .splitter-table td {
+      padding: 12px 10px;
+      text-align: center;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 13px;
+    }
+    
+    .splitter-table tr:nth-child(even) {
+      background: #f8fafc;
+    }
+    
+    .splitter-table tr:hover {
+      background: #f1f5f9;
+    }
+    
+    .splitter-table select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 13px;
+      background: #fff;
+    }
+    
+    .splitter-table .level-cell {
+      font-weight: 600;
+      color: #667eea;
+    }
+    
+    .splitter-table .loss-cell {
+      font-family: 'Consolas', monospace;
+      color: #64748b;
+    }
+    
+    .splitter-table .power-cell {
+      font-family: 'Consolas', monospace;
+      font-weight: 600;
+    }
+    
+    .splitter-table .rx-power {
+      color: #10b981;
+    }
+    
+    .splitter-table .status-pass {
+      color: #10b981;
+      font-weight: 600;
+    }
+    
+    .splitter-table .status-fail {
+      color: #ef4444;
+      font-weight: 600;
+    }
+    
+    .splitter-table .status-pending {
+      color: #94a3b8;
+    }
+    
+    .del-btn {
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    
+    .del-btn:hover {
+      background: #dc2626;
+      transform: scale(1.1);
+    }
+    
+    /* Add Button */
+    .add-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 15px;
+    }
+    
+    .add-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Buttons */
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 25px;
+    }
+    
+    .btn {
+      padding: 14px 35px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #475569;
+    }
+    
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+    
+    .btn-help {
+      background: #17a2b8;
+      color: #fff;
+    }
+    
+    .btn-help:hover {
+      background: #138496;
+    }
+    
+    /* Results */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .result-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+    }
+    
+    .result-card h4 {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+    
+    .result-card .value {
+      font-size: 24px;
+      font-weight: 700;
+      font-family: 'Consolas', monospace;
+    }
+    
+    .result-card .value.success {
+      color: #10b981;
+    }
+    
+    .result-card .value.warning {
+      color: #f59e0b;
+    }
+    
+    .result-card .value.danger {
+      color: #ef4444;
+    }
+    
+    .result-card .range {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 5px;
+    }
+    
+    /* Summary Box */
+    .summary-box {
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    
+    .summary-box.pass {
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      border: 2px solid #10b981;
+    }
+    
+    .summary-box.fail {
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+      border: 2px solid #ef4444;
+    }
+    
+    .summary-box.pending {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      border: 2px solid #94a3b8;
+    }
+    
+    .summary-box h3 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    
+    .summary-box.pass h3 {
+      color: #065f46;
+    }
+    
+    .summary-box.fail h3 {
+      color: #991b1b;
+    }
+    
+    .summary-box.pending h3 {
+      color: #475569;
+    }
+    
+    .summary-box p {
+      font-size: 14px;
+      color: #64748b;
+    }
+    
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+    }
+    
+    .modal {
+      background: #fff;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 700px;
+      max-height: 85vh;
+      overflow: hidden;
+    }
+    
+    .modal-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 20px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-header h2 {
+      font-size: 18px;
+    }
+    
+    .modal-close {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .modal-close:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    
+    .modal-body {
+      padding: 25px;
+      max-height: calc(85vh - 80px);
+      overflow-y: auto;
+    }
+    
+    .help-content {
+      font-size: 14px;
+      line-height: 1.8;
+      color: #475569;
+    }
+    
+    .help-content h4 {
+      color: #667eea;
+      margin: 20px 0 10px;
+      font-size: 15px;
+    }
+    
+    .help-content h4:first-child {
+      margin-top: 0;
+    }
+    
+    .help-content code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Consolas', monospace;
+      color: #667eea;
+    }
+    
+    .help-content pre {
+      background: #f8fafc;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+    
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      color: rgba(255,255,255,0.7);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>新华三小全光光功率计算器</h1>
+      <p>H3C Mini PON Optical Power Calculator V2.0</p>
+    </div>
+    
+    <!-- Device Selection -->
+    <div class="card">
+      <div class="card-title">设备选择</div>
+      <div class="device-grid">
+        <div class="device-card">
+          <h3>光网关型号</h3>
+          <select id="gateway" onchange="updateDeviceInfo()">
+            <option value="0">UFR1105MG</option>
+          </select>
+          <div class="device-info" id="gatewayInfo">
+            <strong>发送功率:</strong> 3.5 dBm<br>
+            <strong>接收范围:</strong> -28.5 ~ -8 dBm
+          </div>
+        </div>
+        <div class="device-card">
+          <h3>光AP/光交换型号</h3>
+          <select id="ap" onchange="updateDeviceInfo()">
+            <option value="0">UFS108G-P</option>
+            <option value="1">UFS108G</option>
+            <option value="2">UFAP1261G</option>
+            <option value="3" selected>UFAP1161G</option>
+            <option value="4">UFAP1361G</option>
+          </select>
+          <div class="device-info" id="apInfo">
+            <strong>接收灵敏度:</strong> -27 dBm<br>
+            <strong>过载功率:</strong> -8 dBm<br>
+            <strong>合格范围:</strong> -25 ~ -10 dBm（预留2dB余量）
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ODN Configuration -->
+    <div class="card">
+      <div class="card-title">ODN网络配置</div>
+      <table class="splitter-table">
+        <thead>
+          <tr>
+            <th style="width: 60px;">级别</th>
+            <th>分光器型号</th>
+            <th style="width: 80px;">直连损耗</th>
+            <th style="width: 80px;">级联损耗</th>
+            <th style="width: 100px;">上行光功率</th>
+            <th>光AP接收功率</th>
+            <th style="width: 70px;">状态</th>
+            <th style="width: 50px;">操作</th>
+          </tr>
+        </thead>
+        <tbody id="splitterTableBody">
+          <!-- Dynamic rows will be added here -->
+        </tbody>
+      </table>
+      <button class="add-btn" onclick="addSplitterLevel()">
+        <span>+</span> 添加分光级别
+      </button>
+    </div>
+    
+    <!-- Buttons -->
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="calculate()">开始计算</button>
+      <button class="btn btn-secondary" onclick="reset()">重置</button>
+      <button class="btn btn-help" onclick="showHelp()">帮助说明</button>
+    </div>
+    
+    <!-- Results -->
+    <div class="card" id="resultsCard" style="display: none;">
+      <div class="card-title">计算结果</div>
+      
+      <div class="results-grid" id="resultsGrid">
+        <!-- Dynamic results will be added here -->
+      </div>
+      
+      <div class="summary-box pending" id="summaryBox">
+        <h3 id="summaryTitle">请选择分光器并点击计算</h3>
+        <p id="summaryText">合格范围: -25 ~ -10 dBm（预留2dB余量）</p>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+      © 2024 新华三小全光光功率计算器 V2.0
+    </div>
+  </div>
+  
+  <!-- Help Modal -->
+  <div class="modal-overlay" id="helpModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>帮助说明</h2>
+        <button class="modal-close" onclick="closeHelp()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="help-content">
+          <h4>【功能说明】</h4>
+          <p>本工具用于计算PON网络的光功率预算，判断组网配置是否满足光功率要求。</p>
+          
+          <h4>【计算模型】</h4>
+          <p><strong>一级分光:</strong></p>
+          <pre>上行光功率 = 光网关发送功率
+接收光功率 = 上行光功率 - 直连损耗 - 1dB(连接器损耗)</pre>
+          
+          <p><strong>二级及后续分光:</strong></p>
+          <pre>上行光功率 = 上一级上行光功率 - (上一级级联损耗=0 ? 直连损耗 : 级联损耗)
+接收光功率 = 上行光功率 - 直连损耗 - 1dB(连接器损耗)</pre>
+          
+          <h4>【分光器说明】</h4>
+          <p><strong>无源分光器 (OSPL系列):</strong></p>
+          <ul>
+            <li>级联损耗 = 0</li>
+            <li>支持1x2, 1x4, 1x8, 1x16, 1x32, 1x64</li>
+          </ul>
+          
+          <p><strong>有源分光器 (UFD系列):</strong></p>
+          <ul>
+            <li>级联损耗 > 0</li>
+            <li>可多级级联扩展</li>
+            <li>支持1x5, 1x9</li>
+          </ul>
+          
+          <h4>【合格标准】</h4>
+          <pre>接收灵敏度 + 2dB &lt; 接收光功率 &lt; 过载功率 - 2dB</pre>
+          <p>其中2dB为预留余量，保证网络稳定运行。</p>
+          
+          <h4>【使用步骤】</h4>
+          <ol>
+            <li>选择光网关型号（确定发送功率）</li>
+            <li>选择光AP/光交换型号（确定接收要求）</li>
+            <li>配置ODN网络（选择各级分光器）</li>
+            <li>点击"开始计算"查看结果</li>
+            <li>检查各分光级别是否为"合格"</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // Data Definitions
+    // ============================================
+    
+    // 光网关参数 (型号, 发送最小值, 发送最大值, 接收灵敏度下限, 接收过载上限, 发送理论值)
+    const GATEWAYS = [
+      { name: 'UFR1105MG', desc: 'XGPON上行+4*GE+1*2.5G+GPON下行', tx_min: 1.46, tx_max: 6, rx_sens: -28.5, sat: -8, tx_nom: 3.5 },
+    ];
+    
+    // 光AP/光交换参数 (型号, 产品介绍, 发送最小值, 发送最大值, 接收灵敏度下限, 接收过载上限)
+    const APS = [
+      { name: 'UFS108G-P', desc: '8*GE POE+，单端口最大30W，整机最大120W', tx_min: 0.5, tx_max: 5, rx_sens: -28.5, sat: -8 },
+      { name: 'UFS108G', desc: '8*GE', tx_min: 0.5, tx_max: 5, rx_sens: -28.5, sat: -8 },
+      { name: 'UFAP1261G', desc: 'GPON上行+1*GE, Wi-Fi 6 +AX3000，吸顶式', tx_min: 0.5, tx_max: 5, rx_sens: -27, sat: -8 },
+      { name: 'UFAP1161G', desc: 'GPON上行+1*GE, Wi-Fi 6 +AX3000，面板式', tx_min: 0.5, tx_max: 5, rx_sens: -27, sat: -8 },
+      { name: 'UFAP1361G', desc: 'GPON上行+4*GE+1*POTS+AX3000，挂墙式', tx_min: 0.5, tx_max: 5, rx_sens: -27, sat: -8 },
+    ];
+    
+    // 分光器参数 (型号, 类型, 直连损耗, 级联损耗, 连接器数)
+    const SPLITTERS = [
+      // 无源分光器 (级联损耗=0，不可级联)
+      { name: 'OSPL-1x64', type: '1分64无源', direct: 20.3, cascade: 0, connectors: 0 },
+      { name: 'OSPL-1x32', type: '1分32无源', direct: 16.0, cascade: 0, connectors: 0 },
+      { name: 'OSPL-1x16', type: '1分16无源', direct: 13.6, cascade: 0, connectors: 0 },
+      { name: 'OSPL-1x8', type: '1分8无源', direct: 10.3, cascade: 0, connectors: 0 },
+      { name: 'OSPL-1x4', type: '1分4无源', direct: 7.2, cascade: 0, connectors: 0 },
+      { name: 'OSPL-1x2', type: '1分2无源', direct: 3.6, cascade: 0, connectors: 0 },
+      // 有源分光器 (级联损耗>0，可级联)
+      { name: 'UFD109-P', type: '1分9有源(可级联)', direct: 16.4, cascade: 2.5, connectors: 1 },
+      { name: 'UFD105-P', type: '1分5有源(可级联)', direct: 16.3, cascade: 2.2, connectors: 1 },
+    ];
+    
+    const SPLITTER_OPTIONS = ['/'].concat(SPLITTERS.map(s => s.name));
+    
+    // State
+    let splitterLevels = [];
+    
+    // ============================================
+    // Initialization
+    // ============================================
+    
+    function init() {
+      addSplitterLevel();
+    }
+    
+    function updateDeviceInfo() {
+      const gateway = GATEWAYS[0]; // Only one gateway
+      const apIndex = parseInt(document.getElementById('ap').value);
+      const ap = APS[apIndex];
+      
+      document.getElementById('gatewayInfo').innerHTML = `
+        <strong>发送功率:</strong> ${gateway.tx_nom} dBm<br>
+        <strong>接收范围:</strong> ${gateway.rx_sens} ~ ${gateway.sat} dBm
+      `;
+      
+      const minAcceptable = ap.rx_sens + 2;
+      const maxAcceptable = ap.sat - 2;
+      
+      document.getElementById('apInfo').innerHTML = `
+        <strong>接收灵敏度:</strong> ${ap.rx_sens} dBm<br>
+        <strong>过载功率:</strong> ${ap.sat} dBm<br>
+        <strong>合格范围:</strong> ${minAcceptable.toFixed(0)} ~ ${maxAcceptable.toFixed(0)} dBm（预留2dB余量）
+      `;
+    }
+    
+    // ============================================
+    // Splitter Level Management
+    // ============================================
+    
+    function addSplitterLevel() {
+      if (splitterLevels.length >= 8) {
+        alert('最多只能添加8级分光！');
+        return;
+      }
+      
+      const level = splitterLevels.length + 1;
+      const id = `splitter_${level}`;
+      
+      const row = document.createElement('tr');
+      row.id = id;
+      row.innerHTML = `
+        <td class="level-cell">第${level}级</td>
+        <td>
+          <select onchange="onSplitterChanged(${level})" id="select_${id}">
+            ${SPLITTER_OPTIONS.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+          </select>
+        </td>
+        <td class="loss-cell" id="direct_${id}">-</td>
+        <td class="loss-cell" id="cascade_${id}">-</td>
+        <td class="power-cell" id="up_${id}">-</td>
+        <td class="power-cell rx-power" id="rx_${id}">-</td>
+        <td id="status_${id}"><span class="status-pending">-</span></td>
+        <td>
+          <button class="del-btn" onclick="removeSplitterLevel(${level})">-</button>
+        </td>
+      `;
+      
+      document.getElementById('splitterTableBody').appendChild(row);
+      
+      splitterLevels.push({
+        level: level,
+        id: id,
+        selector: `select_${id}`,
+        directLabel: `direct_${id}`,
+        cascadeLabel: `cascade_${id}`,
+        upLabel: `up_${id}`,
+        rxLabel: `rx_${id}`,
+        statusLabel: `status_${id}`
+      });
+    }
+    
+    function removeSplitterLevel(level) {
+      if (splitterLevels.length <= 1) {
+        alert('至少需要保留一级分光！');
+        return;
+      }
+      
+      const index = splitterLevels.findIndex(s => s.level === level);
+      if (index === -1) return;
+      
+      const row = document.getElementById(splitterLevels[index].id);
+      if (row) row.remove();
+      
+      splitterLevels.splice(index, 1);
+      
+      // Renumber remaining levels
+      splitterLevels.forEach((s, i) => {
+        s.level = i + 1;
+        const row = document.getElementById(s.id);
+        if (row) {
+          row.querySelector('.level-cell').textContent = `第${s.level}级`;
+        }
+      });
+      
+      clearResults();
+    }
+    
+    function onSplitterChanged(level) {
+      clearResults();
+    }
+    
+    // ============================================
+    // Calculation
+    // ============================================
+    
+    function calculate() {
+      const gateway = GATEWAYS[0];
+      const apIndex = parseInt(document.getElementById('ap').value);
+      const ap = APS[apIndex];
+      
+      const gwTxPower = gateway.tx_nom;
+      const apRxMin = ap.rx_sens;
+      const apRxMax = ap.sat;
+      const minAcceptable = apRxMin + 2;
+      const maxAcceptable = apRxMax - 2;
+      
+      let currentUpPower = gwTxPower;
+      let prevCascadeLoss = 0;
+      let prevDirectLoss = 0;
+      
+      const results = [];
+      let allPassed = true;
+      let anySplitter = false;
+      
+      for (const levelData of splitterLevels) {
+        const selector = document.getElementById(levelData.selector);
+        const splitterName = selector.value;
+        
+        if (splitterName === '/' || splitterName === '') {
+          resetRowLabels(levelData);
+          continue;
+        }
+        
+        anySplitter = true;
+        
+        const splitter = SPLITTERS.find(s => s.name === splitterName);
+        if (!splitter) continue;
+        
+        const directLoss = splitter.direct;
+        const cascadeLoss = splitter.cascade;
+        
+        // Calculate upstream power
+        let upPower;
+        if (levelData.level === 1) {
+          upPower = gwTxPower;
+        } else {
+          if (prevCascadeLoss === 0) {
+            upPower = currentUpPower - prevDirectLoss;
+          } else {
+            upPower = currentUpPower - prevCascadeLoss;
+          }
+        }
+        
+        // Calculate received power
+        const rxPower = upPower - directLoss - 1;
+        
+        // Update display
+        document.getElementById(levelData.directLabel).textContent = `${directLoss.toFixed(1)} dB`;
+        document.getElementById(levelData.cascadeLabel).textContent = `${cascadeLoss.toFixed(1)} dB`;
+        document.getElementById(levelData.upLabel).textContent = `${upPower.toFixed(2)} dBm`;
+        document.getElementById(levelData.rxLabel).textContent = `${rxPower.toFixed(2)} dBm`;
+        
+        // Judgment
+        let passed = minAcceptable <= rxPower && rxPower <= maxAcceptable;
+        let statusClass = passed ? 'status-pass' : 'status-fail';
+        let statusText = passed ? '合格' : '不合格';
+        
+        document.getElementById(levelData.statusLabel).innerHTML = 
+          `<span class="${statusClass}">${statusText}</span>`;
+        
+        results.push({
+          level: levelData.level,
+          splitter: splitterName,
+          upPower: upPower,
+          rxPower: rxPower,
+          passed: passed
+        });
+        
+        if (!passed) allPassed = false;
+        
+        // Prepare for next level
+        currentUpPower = upPower;
+        prevDirectLoss = directLoss;
+        prevCascadeLoss = cascadeLoss;
+      }
+      
+      // Show results
+      showResults(results, allPassed, anySplitter, minAcceptable, maxAcceptable);
+    }
+    
+    function resetRowLabels(levelData) {
+      document.getElementById(levelData.directLabel).textContent = '-';
+      document.getElementById(levelData.cascadeLabel).textContent = '-';
+      document.getElementById(levelData.upLabel).textContent = '-';
+      document.getElementById(levelData.rxLabel).textContent = '-';
+      document.getElementById(levelData.statusLabel).innerHTML = '<span class="status-pending">-</span>';
+    }
+    
+    function clearResults() {
+      for (const levelData of splitterLevels) {
+        resetRowLabels(levelData);
+      }
+      document.getElementById('resultsCard').style.display = 'none';
+    }
+    
+    function showResults(results, allPassed, anySplitter, minAcceptable, maxAcceptable) {
+      const resultsCard = document.getElementById('resultsCard');
+      const resultsGrid = document.getElementById('resultsGrid');
+      const summaryBox = document.getElementById('summaryBox');
+      const summaryTitle = document.getElementById('summaryTitle');
+      const summaryText = document.getElementById('summaryText');
+      
+      resultsCard.style.display = 'block';
+      
+      // Build results grid
+      if (results.length > 0) {
+        resultsGrid.innerHTML = results.map(r => `
+          <div class="result-card">
+            <h4>第${r.level}级 - ${r.splitter}</h4>
+            <div class="value ${r.passed ? 'success' : 'danger'}">${r.rxPower.toFixed(2)} dBm</div>
+            <div class="range">${r.passed ? '✓ 合格' : '✗ 不合格'}</div>
+          </div>
+        `).join('');
+      } else {
+        resultsGrid.innerHTML = '<p style="text-align: center; color: #94a3b8;">暂无计算结果</p>';
+      }
+      
+      // Summary
+      if (!anySplitter) {
+        summaryBox.className = 'summary-box pending';
+        summaryTitle.textContent = '请至少选择一个分光器';
+        summaryText.textContent = `合格范围: ${minAcceptable.toFixed(0)} ~ ${maxAcceptable.toFixed(0)} dBm（预留2dB余量）`;
+      } else if (allPassed) {
+        summaryBox.className = 'summary-box pass';
+        summaryTitle.textContent = '✓ 所有分光级别光功率均达标！';
+        summaryText.textContent = `合格范围: ${minAcceptable.toFixed(0)} ~ ${maxAcceptable.toFixed(0)} dBm`;
+      } else {
+        summaryBox.className = 'summary-box fail';
+        summaryTitle.textContent = '✗ 部分分光级别光功率不达标';
+        summaryText.textContent = `合格范围: ${minAcceptable.toFixed(0)} ~ ${maxAcceptable.toFixed(0)} dBm`;
+      }
+      
+      // Scroll to results
+      resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function reset() {
+      // Reset device selection
+      document.getElementById('gateway').selectedIndex = 0;
+      document.getElementById('ap').selectedIndex = 3; // Default UFAP1161G
+      
+      // Remove all splitter rows
+      const tbody = document.getElementById('splitterTableBody');
+      tbody.innerHTML = '';
+      splitterLevels = [];
+      
+      // Reinitialize with one row
+      addSplitterLevel();
+      
+      // Clear results
+      clearResults();
+      updateDeviceInfo();
+    }
+    
+    // ============================================
+    // Help Modal
+    // ============================================
+    
+    function showHelp() {
+      document.getElementById('helpModal').classList.add('active');
+    }
+    
+    function closeHelp() {
+      document.getElementById('helpModal').classList.remove('active');
+    }
+    
+    // Close modal on outside click
+    document.getElementById('helpModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeHelp();
+      }
+    });
+    
+    // Initialize
+    init();
+    updateDeviceInfo();
+  </script>
+</body>
+</html>
